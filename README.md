@@ -1,2 +1,2 @@
-# LUCKWORLD-
+# LUCKWORLD
 Blockchain Balance Scanner
