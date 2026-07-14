@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luck World</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060a14;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:10px}
+#app{width:100%;max-width:480px;background:#0d1424;border-radius:12px;overflow:hidden;box-shadow:0 0 50px rgba(59,130,246,0.12),0 0 100px rgba(249,115,22,0.06);border:1px solid #1a2744}
+.header{background:linear-gradient(135deg,#0c1a3a,#091428);padding:18px 20px;text-align:center;border-bottom:2px solid #2563eb;position:relative}
+.header::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#f97316,transparent)}
+.header h1{color:#ffffff;font-size:24px;font-weight:900;letter-spacing:5px;text-transform:uppercase}
+.header h1 span{color:#f97316;text-shadow:0 0 20px rgba(249,115,22,0.5)}
+.header .tagline{color:#60a5fa;font-size:10px;margin-top:4px;letter-spacing:2px;font-weight:600}
+.section{padding:10px 14px}
+.section-title{color:#60a5fa;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;padding-left:4px}
+.coin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.coin-btn{padding:10px 6px;border:2px solid #1a2744;border-radius:8px;background:#091428;color:#64748b;cursor:pointer;text-align:center;transition:all .2s;font-size:12px;font-weight:700;user-select:none}
+.coin-btn:hover{border-color:#2563eb;color:#60a5fa;background:#0f1d35}
+.coin-btn.active{border-color:#f97316;background:#1a1030;color:#f97316;box-shadow:0 0 12px rgba(249,115,22,0.25)}
+.coin-btn .coin-icon{font-size:20px;display:block;margin-bottom:2px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.stat-box{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;min-height:32px}
+.stat-label{background:#162040;color:#60a5fa;padding:6px 8px;font-size:9px;display:flex;align-items:center;white-space:nowrap;min-width:52px;font-weight:700;letter-spacing:.5px}
+.stat-label.orange{background:#431407;color:#fb923c}
+.stat-label.red{background:#450a0a;color:#fca5a5}
+.stat-value{flex:1;background:#0a1020;padding:6px 8px;font-size:11px;color:#e2e8f0;display:flex;align-items:center;font-family:'Consolas','Courier New',monospace;border:1px solid #1a2744;border-left:none;font-weight:700}
+.stat-value.blue-border{border-color:#2563eb;border-left:none}
+.stat-value.orange-border{border-color:#ea580c;border-left:none;color:#fb923c}
+.stat-value.red-border{border-color:#dc2626;border-left:none;color:#fca5a5}
+.log-area{margin:6px 14px;border:1px solid #1a2744;border-radius:8px;background:#060a14;overflow:hidden}
+.log-header{background:rgba(15,29,53,0.8);padding:5px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a2744}
+.log-header span{color:#60a5fa;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.log-clear{color:#475569;font-size:9px;cursor:pointer;background:none;border:1px solid #1e293b;padding:2px 8px;border-radius:3px;font-weight:600}
+.log-clear:hover{color:#60a5fa;border-color:#2563eb}
+#logOutput{height:340px;overflow-y:auto;padding:8px 10px;font-family:'Consolas','Courier New',monospace;font-size:10px;line-height:1.55;color:#cbd5e1;scroll-behavior:smooth}
+#logOutput::-webkit-scrollbar{width:7px}
+#logOutput::-webkit-scrollbar-track{background:#060a14}
+#logOutput::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:4px}
+#logOutput::-webkit-scrollbar-thumb:hover{background:#2563eb}
+.log-blue{color:#60a5fa}.log-green{color:#22c55e}.log-orange{color:#f97316}.log-red{color:#ef4444}.log-white{color:#ffffff}.log-yellow{color:#eab308}.log-cyan{color:#06b6d4}.log-dim{color:#475569}
+.dashboard-section{margin:8px 14px;border:1px solid #ea580c;border-radius:10px;background:#0a0e18;overflow:hidden}
+.dashboard-header{background:linear-gradient(135deg,#2a1005,#1a0a03);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ea580c}
+.dashboard-title{color:#f97316;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.dashboard-title .star{color:#eab308;font-size:13px}
+.dash-count{background:#ea580c;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;min-width:20px;text-align:center}
+.download-btn{padding:5px 14px;background:linear-gradient(180deg,#f97316,#ea580c);color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.5px}
+.download-btn:hover{background:linear-gradient(180deg,#fb923c,#f97316);box-shadow:0 0 12px rgba(249,115,22,0.4)}
+.dash-empty{text-align:center;color:#475569;font-size:11px;padding:20px 10px;font-style:italic}
+.dashboard-list{max-height:220px;overflow-y:auto;padding:6px}
+.dashboard-list::-webkit-scrollbar{width:5px}
+.dashboard-list::-webkit-scrollbar-track{background:#0a0e18}
+.dashboard-list::-webkit-scrollbar-thumb{background:#ea580c;border-radius:3px}
+.found-card{background:#0d1424;border:1px solid #1e293b;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #f97316}
+.found-card:last-child{margin-bottom:0}
+.found-card .fc-row{display:flex;align-items:center;gap:6px;margin-bottom:2px;font-family:'Consolas','Courier New',monospace;font-size:9px;line-height:1.5}
+.found-card .fc-label{color:#60a5fa;font-weight:700;min-width:42px;flex-shrink:0;font-size:8.5px;letter-spacing:.3px}
+.found-card .fc-val{color:#e2e8f0;word-break:break-all;flex:1}
+.found-card .fc-val.addr{color:#22c55e}
+.found-card .fc-val.pk{color:#ffffff}
+.found-card .fc-val.mn{color:#94a3b8;font-size:8.5px}
+.found-card .fc-bal{color:#f97316;font-weight:900;font-size:10px;margin-top:3px;padding-top:4px;border-top:1px solid #1a2744;letter-spacing:.5px}
+.found-card .fc-coin{display:inline-block;background:#1e293b;color:#60a5fa;font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;margin-right:6px;letter-spacing:1px}
+.found-card .fc-idx{color:#475569;font-size:8px;font-weight:700}
+.speed-bar{padding:4px 14px 6px}
+.speed-label{color:#475569;font-size:9px;text-align:center;letter-spacing:.5px}
+.speed-value{color:#60a5fa;font-weight:700}
+.live-preview{margin:6px 14px;background:#0a1020;border:1px solid #1a2744;border-radius:8px;padding:8px 10px;font-family:'Consolas','Courier New',monospace;font-size:9.5px;color:#cbd5e1;line-height:1.65;max-height:160px;overflow:hidden;word-break:break-all;white-space:pre-wrap}
+.live-preview .lbl{color:#60a5fa;font-weight:700}
+.live-preview .val{color:#e2e8f0;white-space:pre-wrap}
+.live-preview .bal{color:#f97316;font-weight:700}
+.controls{display:flex;padding:10px 14px}
+.btn{flex:1;padding:13px 16px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:1.5px;transition:all .2s;text-transform:uppercase}
+.btn-start{background:linear-gradient(180deg,#2563eb,#1d4ed8);color:#fff;border:2px solid #3b82f6}
+.btn-start:hover{background:linear-gradient(180deg,#3b82f6,#2563eb);box-shadow:0 0 25px rgba(59,130,246,0.4)}
+.btn-start:disabled{background:#162040;color:#334155;border-color:#1e293b;cursor:not-allowed;box-shadow:none}
+.footer{background:#070b15;padding:14px 20px;text-align:center;border-top:2px solid #1a2744}
+.footer .label{color:#475569;font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.footer .value{color:#f97316;font-size:12px;letter-spacing:3px;margin-top:4px;font-weight:800;text-transform:uppercase}
+.api-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;margin-right:4px;animation:blink 1.5s infinite}
+.api-indicator.error{background:#ef4444;animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:480px){
+  #app{max-width:100%;border-radius:0}
+  body{padding:0}
+  .coin-grid{grid-template-columns:repeat(2,1fr)}
+  #logOutput{height:260px;font-size:9px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>LUCK <span>WORLD</span></h1>
+    <div class="tagline">Blockchain Balance Scanner</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Select Coin</div>
+    <div class="coin-grid">
+      <div class="coin-btn active" data-coin="btc" onclick="selectCoin('btc')">
+        <span class="coin-icon">&#8383;</span>BTC
+      </div>
+      <div class="coin-btn" data-coin="eth" onclick="selectCoin('eth')">
+        <span class="coin-icon">&#926;</span>ETH
+      </div>
+      <div class="coin-btn" data-coin="trx" onclick="selectCoin('trx')">
+        <span class="coin-icon">&#9651;</span>TRX
+      </div>
+      <div class="coin-btn" data-coin="bnb" onclick="selectCoin('bnb')">
+        <span class="coin-icon">&#9670;</span>BNB
+      </div>
+      <div class="coin-btn" data-coin="ltc" onclick="selectCoin('ltc')">
+        <span class="coin-icon">&#321;</span>LTC
+      </div>
+      <div class="coin-btn" data-coin="dash" onclick="selectCoin('dash')">
+        <span class="coin-icon">&#8383;</span>DASH
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-label">Checked</div>
+        <div class="stat-value blue-border" id="statCheck">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label orange">Found</div>
+        <div class="stat-value orange-border" id="statFound">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">API Calls</div>
+        <div class="stat-value blue-border" id="statAPI">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="log-area">
+    <div class="log-header">
+      <span><span class="api-indicator" id="apiDot"></span> Console Output</span>
+      <button class="log-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div id="logOutput"></div>
+  </div>
+
+  <div class="dashboard-section" id="dashboardSection">
+    <div class="dashboard-header">
+      <div class="dashboard-title">
+        <span class="star">&#9733;</span> FOUND DASHBOARD
+        <span class="dash-count" id="dashCount">0</span>
+      </div>
+      <button class="download-btn" onclick="downloadFound()">&#11015; Download TXT</button>
+    </div>
+    <div id="dashEmpty" class="dash-empty">No wallets with balance found yet... Scanner running...</div>
+    <div id="dashboardList" class="dashboard-list"></div>
+  </div>
+
+  <div class="speed-bar">
+    <div class="speed-label">Speed: <span class="speed-value" id="speedDisplay">0</span> addr/sec</div>
+  </div>
+
+  <div class="live-preview" id="livePreview"><span id="liveText" class="val">Waiting...</span></div>
+
+  <div class="controls">
+    <button class="btn btn-start" id="btnStart" onclick="startScan()">&#9654; START</button>
+  </div>
+
+  <div class="footer">
+    <div class="label">Programmer &amp; Owner</div>
+    <div class="value">CRYPTOGRAPHYTUBE.IN</div>
+  </div>
+</div>
+
+<!-- CDN Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+<script>if(typeof CryptoJS==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/elliptic@6.5.4/dist/elliptic.min.js"></script>
+<script>if(typeof elliptic==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/js-sha3@0.8.0/build/sha3.min.js"></script>
+<script>if(typeof keccak_256==='undefined')document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.8.0/sha3.min.js"><\/script>');</script>
+
+<script>
+// ================================================================
+//  BIP39 ENGLISH WORDLIST (2048 words)
+// ================================================================
+const BIP39="abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice aerobic affair afford afraid again age agent agree ahead aim air airport aisle alarm album alcohol alert alien all alley allow almost alone alpha already also alter always amateur amazing among amount amused analyst anchor ancient anger angle angry animal ankle announce annual another answer antenna antique anxiety any apart apology appear apple approve april arch arctic area arena argue arm armed armor army around arrange arrest arrive arrow art artefact artist artwork ask aspect assault asset assist assume asthma athlete atom attack attend attitude attract auction audit august aunt author auto autumn average avocado avoid awake aware away awesome awful awkward axis baby bachelor bacon badge bag balance balcony ball bamboo banana banner bar barely bargain barrel base basic basket battle beach bean beauty because become beef before begin behave behind believe below belt bench benefit best betray better between beyond bicycle bid bike bind biology bird birth bitter black blade blame blanket blast bleak bless blind blood blossom blouse blue blur blush board boat body boil bomb bone bonus book boost border boring borrow boss bottom bounce box boy bracket brain brand brass brave bread breeze brick bridge brief bright bring brisk broccoli broken bronze broom brother brown brush bubble buddy budget buffalo build bulb bulk bullet bundle bunker burden burger burst bus business busy butter buyer buzz cabbage cabin cable cactus cage cake call calm camera camp can canal cancel candy cannon canoe canvas canyon cape capable capital captain car carbon card cargo carpet carry cart case cash casino castle casual cat catalog catch category cattle caught cause caution cave ceiling celery cement census century cereal certain chair chalk champion change chaos chapter charge chase chat cheap check cheese chef cherry chest chicken chief child chimney choice choose chronic chuckle chunk churn cigar cinnamon circle citizen city civil claim clap clarify claw clay clean clerk clever click client cliff climb clinic clip clock clog close cloth cloud clown club clump cluster clutch coach coast coconut code coffee coil coin collect color column combine come comfort comic common company concert conduct confirm congress connect consider control convince cook cool copper copy coral core corn correct cost cotton couch country couple course cousin cover coyote crack cradle craft cram crane crash crater crawl crazy cream credit creek crew cricket crime crisp critic crop cross crouch crowd crucial cruel cruise crumble crunch crush cry crystal cube culture cup cupboard curious current curtain curve cushion custom cute cycle dad damage damp dance danger daring dash daughter dawn day deal debate debris decade december decide decline decorate decrease deer defense define defy degree delay deliver demand demise denial dentist deny depart depend deposit depth deputy derive desert design desk despair destroy detail detect develop device devote diagram dial diamond diary dice diesel diet differ digital dignity dilemma dinner dinosaur direct dirt disagree discover disease dish dismiss disorder display distance divert divide divorce dizzy doctor document dog doll dolphin domain donate donkey donor door dose double dove draft dragon drama drastic draw dream dress drift drill drink drip drive drop drum dry duck dumb dune during dust dutch duty dwarf dynamic eager eagle early earn earth easily east easy echo ecology economy edge edit educate effort egg eight either elbow elder electric elegant element elephant elevator elite else embark embody embrace emerge emotion employ empower empty enable encourage end endless endorse enemy energy enforce engage engine enhance enjoy enlist enough enrich enroll ensure enter entire entry envelope episode equal equip era erase erode erosion error erupt escape essay essence estate eternal ethics evidence evil evoke evolve exact example excess exchange excite exclude excuse execute exercise exhaust exhibit exile exist exit exotic expand expect expire explain expose express extend extra eye eyebrow fabric face faculty fade faint faith fall false fame family famous fan fancy fantasy farm fashion fat fatal father fatigue fault favorite feature february federal fee feed feel female fence festival fetch fever few fiber fiction field figure file film filter final find fine finger finish fire firm fiscal fish fit fitness fix flag flame flash flat flavor flee flight flip float flock floor flower fluid flush fly foam focus fog folk follow food foot force forest forget fork fortune forum forward fossil foster found fox fragile frame frequent fresh friend fringe frog front frost frown frozen fruit fuel fun funny furnace fury future gadget gain galaxy gallery game gap garage garbage garden garlic garment gas gasp gate gather gaze gear gender gene general genius genre gentle genuine gesture ghost giant gift giggle ginger giraffe girl give glad glance glare glass glide glimpse globe gloom glory glove glow glue goat goddess gold good goose gorilla gospel gossip govern gown grab grace grain grant grape grass gravity great green grid grief grit grocery group grow grunt guard guess guide guilt guitar gun gym habit hair half hammer hamster hand happy harbor hard harsh harvest hat have hawk hazard head health heart heavy hedgehog height hello helmet help hen hero hip hire history hobby hockey hold hole holiday hollow home honey hood hope horn horror horse hospital host hotel hour hover hub huge human humble humor hundred hungry hunt hurdle hurry hurt husband hybrid ice icon idea identify idle ignore ill illegal illness image imitate immense immune impact impose improve impulse inch include income increase index indicate indoor industry infant inflict inform initial inject inmate inner innocent input inquiry insane insect inside inspire install intact interest into invest invite involve iron island isolate issue item ivory jacket jaguar jar jazz jealous jeans jelly jewel job join joke journey joy judge juice jump jungle junior jury just keen keep key keyboard kid kidney kind kingdom kiss kit kitchen kite kitten kiwi knee knife knock know lab label labor ladder lady lake lamp language laptop large later latin laugh laundry lava law lawn lawsuit layer lazy leader leaf learn leave lecture left leg legal legend leisure lemon lend length lens leopard lesson letter level liberty library license life lift light like limb limit link lion liquid list little live lizard load loan lobster local lock logic lonely long loop lottery loud lounge love loyal lucky luggage lumber lunar lunch luxury lyrics machine mad magic magnet maid mail main major make mammal man manage mandate mango mansion manual maple marble march margin marine market marriage mask mass master match material math matrix matter maximum maze meadow medium meet melt member memory mention menu mercy merge merit merry mesh message metal method middle midnight milk million mimic mind minimum minor minute miracle mirror misery miss mistake mix mixed mixture mobile model modify mom moment monitor monkey monster month mood moon moral more morning mosquito mother motion motor mountain mouse move movie much muffin mule multiply muscle museum mushroom music must mutual myself mystery myth naive name napkin narrow nasty nation nature near neck need negative neglect neither nephew nerve nest net network neutral never news next nice night noble noise nominee noodle normal north nose notable nothing notice novel now number nurse nut oak obey object oblige obscure observe obtain ocean odd off offense office often oil okay old olive olympic omit once one onion online only open opera opinion oppose option orange orbit orchard order ordinary organ orient original orphan ostrich other outdoor outer output outside oval oven over own owner oxygen oyster ozone pact paddle page pair palace palm panda panel panic panther paper parade parent park parody party pass patch path patient patrol pattern pause pave payment peace peanut pear peasant pelican pen penalty pencil people pepper perfect permit person pet phone photo phrase physical piano picnic picture piece pig pigeon pill pilot pink pioneer pipe pistol pitch pizza place planet plastic plate play please pledge pluck plug plunge poem poet point polar pole police pond pony pool popular portion position possible post potato pottery poverty powder power practice praise predict prefer prepare present pretty prevent price pride primary print priority prison private prize problem process produce profit program project promote proof property prosper protect proud provide public pudding pull pulp pulse pumpkin punch pupil puppy purchase purity purpose purse push put puzzle pyramid quality quantum quarter question quick quit quiz quote rabbit raccoon race rack radar radio rail rain raise rally ramp ranch random range rapid rare rate rather raven raw razor ready real reason rebel rebuild recall receive recipe record recycle reduce reflect reform refuse region regret regular reject relax release relief rely remain remember remind remove render renew rent reopen repair repeat replace report require rescue resemble resist resource response result retire retreat return reunion reveal review reward rhythm rib ribbon rice rich ride ridge rifle right rigid ring riot ripple risk ritual rival river road roast robot robust rocket romance roof rookie room rose rotate rough round route royal rubber rude rug rule run runway rural sad saddle sadness safe sail salad salmon salon salt salute same sample sand satisfy satoshi sauce sausage save say scale scan scare scatter scene scheme school science scissors scorpion scout scrap screen script scrub sea search season seat second secret section security seed seek segment select sell seminar senior sense sentence series service session settle setup seven shadow shaft shallow share shed shell sheriff shield shift shine ship shiver shock shoe shoot shop short shoulder shove shrimp shrug shuffle shy sibling sick side siege sight sign silent silk silly silver similar simple since sing siren sister situate six size skate sketch ski skill skin skirt skull slab slam sleep slender slice slide slight slim slogan slot slow slush small smart smile smoke smooth snack snake snap sniff snow soap soccer social sock soda soft solar sold solid solution solve someone song soon sorry sort soul sound soup source south space spare spatial spawn speak special speed spell spend sphere spice spider spike spin spirit split spoil sponsor spoon sport spot spray spread spring spy square squeeze squirrel stable stadium staff stage stairs stamp stand start state stay steak steel stem step stereo stick still sting stock stomach stone stool story stove strategy street strike strong struggle student stuff stumble style subject submit subway success such sudden suffer sugar suggest suit summer sun sunny sunset super supply supreme sure surface surge surprise surround survey suspect sustain swallow swamp swap swarm swear sweet swift swim swing switch sword symbol symptom syrup system table tackle tag tail talent talk tank tape target task taste tattoo taxi teach team tell ten tenant tennis tent term test text thank that theme then theory there they thing this thought three thrive throw thumb thunder ticket tide tiger tilt timber time tiny tip tired tissue title toast tobacco today toddler toe together toilet token tomato tomorrow tone tongue tonight tool tooth top topic topple torch tornado tortoise toss total tourist toward tower town toy track trade traffic tragic train transfer trap trash travel tray treat tree trend trial tribe trick trigger trim trip trophy trouble truck true truly trumpet trust truth try tube tuition tumble tuna tunnel turkey turn turtle twelve twenty twice twin twist two type typical ugly umbrella unable unaware uncle uncover under undo unfair unfold unhappy uniform unique unit universe unknown unlock until unusual unveil update upgrade uphold upon upper upset urban urge usage use used useful useless usual utility vacant vacuum vague valid valley valve van vanish vapor various vast vault vehicle velvet vendor venture venue verb verify version very vessel veteran viable vibrant vicious victory video view village vintage violin virtual virus visa visit visual vital vivid vocal voice void volcano volume vote voyage wage wagon wait walk wall walnut want warfare warm warrior wash wasp waste water wave way wealth weapon wear weasel weather web wedding weekend weird welcome west wet whale what wheat wheel when where whip whisper wide width wife wild will win window wine wing wink winner winter wire wisdom wise wish witness wolf woman wonder wood wool word work world worry worth wrap wreck wrestle wrist write wrong yard year yellow you young youth zebra zero zone zoo".split(" ");
+
+// ================================================================
+//  CRYPTO UTILITIES
+// ================================================================
+const ec = new elliptic.ec('secp256k1');
+
+function hexToBytes(hex){if(hex.length%2)hex='0'+hex;const b=new Uint8Array(hex.length/2);for(let i=0;i<hex.length;i+=2)b[i/2]=parseInt(hex.substr(i,2),16);return b}
+function bytesToHex(bytes){return Array.from(bytes,b=>('0'+b.toString(16)).slice(-2)).join('')}
+function wordArrayToUint8(wa){const w=wa.words,s=wa.sigBytes,u=new Uint8Array(s);for(let i=0;i<s;i++)u[i]=(w[i>>>2]>>>(24-(i%4)*8))&0xff;return u}
+function uint8ToWordArray(u8){const w=[];for(let i=0;i<u8.length;i+=4)w.push(((u8[i]||0)<<24)|((u8[i+1]||0)<<16)|((u8[i+2]||0)<<8)|(u8[i+3]||0));return CryptoJS.lib.WordArray.create(w,u8.length)}
+
+const BASE58_CHARS='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function base58Encode(bytes){const u8=(bytes instanceof Uint8Array)?bytes:new Uint8Array(bytes);let num=0n;for(let i=0;i<u8.length;i++)num=num*256n+BigInt(u8[i]);let str='';while(num>0n){str=BASE58_CHARS[Number(num%58n)]+str;num=num/58n}for(let i=0;i<u8.length&&u8[i]===0;i++)str='1'+str;return str}
+function base58CheckEncode(vb,payload){const pu8=(payload instanceof Uint8Array)?payload:hexToBytes(payload);const vu8=(typeof vb==='number')?new Uint8Array([vb]):hexToBytes(vb);const f=new Uint8Array(1+pu8.length);f[0]=vu8[0];f.set(pu8,1);const h1=CryptoJS.SHA256(uint8ToWordArray(f));const h2=CryptoJS.SHA256(h1);const cs=wordArrayToUint8(h2).slice(0,4);const r=new Uint8Array(f.length+4);r.set(f,0);r.set(cs,f.length);return base58Encode(r)}
+
+// ================================================================
+//  BIP39 -> BIP32 DERIVATION
+// ================================================================
+function mnemonicToMasterKey(mnemonic){const salt=CryptoJS.enc.Utf8.parse('mnemonic');const key=CryptoJS.PBKDF2(mnemonic,salt,{keySize:512/32,hasher:CryptoJS.algo.SHA512,iterations:2048});const hmac=CryptoJS.HmacSHA512(key,CryptoJS.enc.Utf8.parse('Bitcoin seed'));const mb=wordArrayToUint8(hmac);return bytesToHex(mb.slice(0,32))}
+
+function getPublicKeys(privKeyHex){const key=ec.keyFromPrivate(privKeyHex,'hex');const pub=key.getPublic();const x=pub.getX().toString('hex').padStart(64,'0');const y=pub.getY().toString('hex').padStart(64,'0');const prefix=(parseInt(y.substr(63,1),16)%2===0)?'02':'03';return{compressed:prefix+x,uncompressed:'04'+x+y}}
+
+function hash160(pubKeyHex){const pb=hexToBytes(pubKeyHex);const s=CryptoJS.SHA256(uint8ToWordArray(pb));const r=CryptoJS.RIPEMD160(s);return wordArrayToUint8(r)}
+function keccak256(pubKeyHex){const pb=hexToBytes(pubKeyHex.startsWith('04')?pubKeyHex.slice(2):pubKeyHex);return keccak_256(pb)}
+
+// ================================================================
+//  COIN ADDRESS FUNCTIONS
+// ================================================================
+function addrBTC(p){return base58CheckEncode(0x00,hash160(p))}
+function addrETH(p){return'0x'+keccak256(p).slice(-40).toLowerCase()}
+function addrTRX(p){return base58CheckEncode(0x41,hash160(p))}
+function addrBNB(p){return'0x'+keccak256(p).slice(-40).toLowerCase()}
+function addrLTC(p){return base58CheckEncode(0x30,hash160(p))}
+function addrDASH(p){return base58CheckEncode(0x4c,hash160(p))}
+
+const COIN_ADDR={btc:addrBTC,eth:addrETH,trx:addrTRX,bnb:addrBNB,ltc:addrLTC,dash:addrDASH};
+const COIN_NAMES={btc:'Bitcoin',eth:'Ethereum',trx:'Tron',bnb:'Binance',ltc:'Litecoin',dash:'Dash'};
+const COIN_SYMBOL={btc:'BTC',eth:'ETH',trx:'TRX',bnb:'BNB',ltc:'LTC',dash:'DASH'};
+const COIN_DECIMALS={btc:8,eth:18,trx:6,bnb:18,ltc:8,dash:8};
+
+function deriveWallet(mnemonic,coin){const pk=mnemonicToMasterKey(mnemonic);const{compressed,uncompressed}=getPublicKeys(pk);const af=COIN_ADDR[coin];return{privkey_hex:pk,comp_addr:af(compressed),uncomp_addr:af(uncompressed)}}
+
+function genMnemonic(size){const w=[];for(let i=0;i<size;i++)w.push(BIP39[Math.floor(Math.random()*2048)]);return w.join(' ')}
+
+// ================================================================
+//  50+ FREE RPC / API ENDPOINTS
+// ================================================================
+const RPC_ENDPOINTS = {
+    btc: [
+        {type:'blockchain_info', url:'https://blockchain.info/balance?active='},
+        {type:'mempool', url:'https://mempool.space/api/address/'},
+        {type:'blockstream', url:'https://blockstream.info/api/address/'},
+        {type:'blockcypher', url:'https://api.blockcypher.com/v1/btc/main/addrs/'},
+        {type:'chainso', url:'https://chain.so/api/v3/get_address_balance/BTC/'},
+        {type:'mempool2', url:'https://mempool.emzy.de/api/address/'},
+        {type:'blockstream3', url:'https://mempool.fmt.cash/api/address/'},
+        {type:'blockstream2', url:'https://blockstream.info/api/address/'},
+        {type:'btc1trezor', url:'https://btc1.trezor.io/api/address/'}
+    ],
+    eth: [
+        'https://rpc.ankr.com/eth',
+        'https://ethereum.publicnode.com',
+        'https://cloudflare-eth.com',
+        'https://eth.llamarpc.com',
+        'https://eth-mainnet.public.blastapi.io',
+        'https://1rpc.io/eth',
+        'https://ethereum.blockpi.network/v1/rpc/public',
+        'https://gateway.tenderly.co/public/ethereum',
+        'https://rpc.mevblocker.io',
+        'https://eth.drpc.org',
+        'https://ethereumnodelight.app.runonflux.io',
+        'https://rpc.flashbots.net',
+        'https://mainnet.eth.cloud.ava.do',
+        'https://eth.gateway.pm',
+        'https://rpc.ethereal.engineering',
+        'https://eth.archivelabs.org',
+        'https://eth.rencode.io',
+        'https://eth-mainnet.gateway.pokt.network/v1/5f345397d19a2a60073471b7',
+        'https://api.mycryptoapi.com/eth',
+        'https://nodes.mewapi.io/rpc/eth',
+        'https://eth-mainnet.gateway.pokt.network/v1/5f345397d19a2a60073471b8',
+        'https://rpc.scaffoldeth.io',
+        'https://eth-mainnet.rpc.blxrbdn.com'
+    ],
+    bnb: [
+        'https://bsc-dataseed.binance.org',
+        'https://bsc-dataseed1.defibit.io',
+        'https://bsc-dataseed2.ninicoin.io',
+        'https://bsc-dataseed3.defibit.io',
+        'https://bsc-dataseed4.defibit.io',
+        'https://bsc-dataseed1.binance.org',
+        'https://bsc-dataseed2.binance.org',
+        'https://bsc-dataseed3.binance.org',
+        'https://bsc-dataseed4.binance.org',
+        'https://rpc.ankr.com/bsc',
+        'https://bsc.publicnode.com',
+        'https://bsc-mainnet.public.blastapi.io',
+        'https://bsc-rpc.publicnode.com',
+        'https://binance.llamarpc.com',
+        'https://bsc-dataseed.binance.org'
+    ],
+    trx: [
+        {type:'trongrid', url:'https://api.trongrid.io/v1/accounts/'},
+        {type:'trongrid2', url:'https://nile.trongrid.io/v1/accounts/'},
+        {type:'tronscan', url:'https://apilist.tronscanapi.com/api/accountv2?address='},
+        {type:'tronview', url:'https://api.tronview.io/account?address='},
+        {type:'tronscan2', url:'https://apilist.tronscan.org/api/accountv2?address='}
+    ],
+    ltc: [
+        {type:'blockcypher', url:'https://api.blockcypher.com/v1/ltc/main/addrs/'},
+        {type:'chainso', url:'https://chain.so/api/v3/get_address_balance/LTC/'},
+        {type:'litecoinspace', url:'https://litecoinspace.org/api/address/'},
+        {type:'litecoinspace2', url:'https://litecoinspace.org/api/address/'},
+        {type:'chainso2', url:'https://chain.so/api/v2/get_address_balance/LTC/'}
+    ],
+    dash: [
+        {type:'blockcypher', url:'https://api.blockcypher.com/v1/dash/main/addrs/'},
+        {type:'chainso', url:'https://chain.so/api/v3/get_address_balance/DASH/'},
+        {type:'blockcypher2', url:'https://api.blockcypher.com/v1/dash/main/addrs/'},
+        {type:'chainso2', url:'https://chain.so/api/v2/get_address_balance/DASH/'}
+    ]
+};
+
+// Round-robin index per coin
+let rpcIndex = {};
+for (let c in RPC_ENDPOINTS) rpcIndex[c] = 0;
+
+function getNextRPC(coin) {
+    const eps = RPC_ENDPOINTS[coin];
+    if (!eps || eps.length === 0) return null;
+    const idx = rpcIndex[coin] % eps.length;
+    rpcIndex[coin]++;
+    return eps[idx];
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ================================================================
+//  BALANCE CHECK FUNCTIONS
+// ================================================================
+let apiCallCount = 0;
+
+async function checkBalance(coin, address) {
+    const eps = RPC_ENDPOINTS[coin];
+    if (!eps || eps.length === 0) return { received: 0, sent: 0, balance: 0, error: 'No endpoints' };
+
+    // Try up to 3 different endpoints
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const ep = getNextRPC(coin);
+        try {
+            apiCallCount++;
+            let result;
+            if (coin === 'btc') {
+                result = await checkBTCBalance(ep, address);
+            } else if (coin === 'eth' || coin === 'bnb') {
+                result = await checkEVMBalance(ep, address);
+            } else if (coin === 'trx') {
+                result = await checkTRXBalance(ep, address);
+            } else if (coin === 'ltc' || coin === 'dash') {
+                result = await checkUTXOBalance(ep, coin, address);
+            }
+            if (result && !result.error) return result;
+        } catch (err) {
+            // Try next endpoint
+            continue;
+        }
+    }
+    return { received: 0, sent: 0, balance: 0, error: true };
+}
+
+// --- BTC ---
+async function checkBTCBalance(ep, address) {
+    if (ep.type === 'blockchain_info') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const info = data[address];
+        if (!info) throw new Error('No data');
+        return {
+            received: (info.total_received || 0) / 1e8,
+            sent: (info.total_sent || 0) / 1e8,
+            balance: (info.final_balance || 0) / 1e8
+        };
+    } else if (ep.type === 'mempool' || ep.type === 'blockstream' || ep.type === 'mempool2' || ep.type === 'blockstream2' || ep.type === 'blockstream3' || ep.type === 'btc1trezor') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const cs = data.chain_stats || {};
+        const funded = parseInt(cs.funded_txo_sum) || 0;
+        const spent = parseInt(cs.spent_txo_sum) || 0;
+        return {
+            received: funded / 1e8,
+            sent: spent / 1e8,
+            balance: (funded - spent) / 1e8
+        };
+    } else if (ep.type === 'blockcypher') {
+        const resp = await fetch(ep.url + address + '/balance');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        return {
+            received: (data.total_received || 0) / 1e8,
+            sent: (data.total_sent || 0) / 1e8,
+            balance: (data.final_balance || 0) / 1e8
+        };
+    } else if (ep.type === 'chainso') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        if (data.status !== 'success') throw new Error('chainso error');
+        const bal = parseFloat(data.data.confirmed_balance) || 0;
+        return { received: 0, sent: 0, balance: bal / 1e8 };
+    }
+    throw new Error('Unknown BTC endpoint type');
+}
+
+// --- ETH / BNB (EVM RPC) ---
+async function checkEVMBalance(rpcUrl, address) {
+    const resp = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_getBalance',
+            params: [address, 'latest'],
+            id: 1
+        })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message || 'RPC error');
+    const wei = parseInt(data.result, 16) || 0;
+    return { received: 0, sent: 0, balance: wei / 1e18 };
+}
+
+// --- TRX ---
+async function checkTRXBalance(ep, address) {
+    if (ep.type === 'trongrid') {
+        const resp = await fetch(ep.url + address, {
+            headers: { 'TRON-PRO-API-KEY': '' }
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        if (!data.success || !data.data || data.data.length === 0) {
+            return { received: 0, sent: 0, balance: 0 };
+        }
+        const bal = data.data[0].balance || 0;
+        return { received: 0, sent: 0, balance: bal / 1e6 };
+    } else if (ep.type === 'tronscan' || ep.type === 'tronscan2') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const bal = parseFloat(data.balance) || 0;
+        return { received: 0, sent: 0, balance: bal / 1e6 };
+    } else if (ep.type === 'trongrid2') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        if (!data.success || !data.data || data.data.length === 0) {
+            return { received: 0, sent: 0, balance: 0 };
+        }
+        const bal = data.data[0].balance || 0;
+        return { received: 0, sent: 0, balance: bal / 1e6 };
+    } else if (ep.type === 'tronview') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const bal = parseFloat(data.balance) || 0;
+        return { received: 0, sent: 0, balance: bal / 1e6 };
+    }
+    throw new Error('Unknown TRX endpoint type');
+}
+
+// --- LTC / DASH (UTXO) ---
+async function checkUTXOBalance(ep, coin, address) {
+    if (ep.type === 'blockcypher') {
+        const resp = await fetch(ep.url + address + '/balance');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const dec = COIN_DECIMALS[coin] || 8;
+        const div = Math.pow(10, dec);
+        return {
+            received: (data.total_received || 0) / div,
+            sent: (data.total_sent || 0) / div,
+            balance: (data.final_balance || 0) / div
+        };
+    } else if (ep.type === 'chainso' || ep.type === 'chainso2') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        if (data.status !== 'success') throw new Error('chainso error');
+        const dec = COIN_DECIMALS[coin] || 8;
+        const div = Math.pow(10, dec);
+        const bal = parseFloat(data.data.confirmed_balance) || 0;
+        return { received: 0, sent: 0, balance: bal / div };
+    } else if (ep.type === 'blockcypher' || ep.type === 'blockcypher2') {
+        const resp = await fetch(ep.url + address + '/balance');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const dec = COIN_DECIMALS[coin] || 8;
+        const div = Math.pow(10, dec);
+        return {
+            received: (data.total_received || 0) / div,
+            sent: (data.total_sent || 0) / div,
+            balance: (data.final_balance || 0) / div
+        };
+    } else if (ep.type === 'litecoinspace' || ep.type === 'litecoinspace2') {
+        const resp = await fetch(ep.url + address);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const cs = data.chain_stats || {};
+        const funded = parseInt(cs.funded_txo_sum) || 0;
+        const spent = parseInt(cs.spent_txo_sum) || 0;
+        return {
+            received: funded / 1e8,
+            sent: spent / 1e8,
+            balance: (funded - spent) / 1e8
+        };
+    }
+    throw new Error('Unknown UTXO endpoint type');
+}
+
+// ================================================================
+//  APPLICATION STATE
+// ================================================================
+let state = {
+    selectedCoin: 'btc',
+    prevCoin: 'btc',
+    scanning: false,
+    checkCount: 0,
+    foundCount: 0,
+    foundData: [],
+    startTime: 0,
+    lastSpeedUpdate: 0,
+    lastCheckCount: 0
+};
+
+// ================================================================
+//  CONSOLE LOGGING
+// ================================================================
+var _logMaxEntries = 120;
+
+function log(msg, colorClass) {
+    const el = document.getElementById('logOutput');
+    const div = document.createElement('div');
+    div.style.margin = '0';
+    div.style.padding = '1px 0';
+    if (colorClass) div.className = colorClass;
+    div.innerHTML = msg;
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+    while (el.children.length > _logMaxEntries) el.removeChild(el.firstChild);
+}
+
+function logWallet(mnemonic, privkey, compAddr, uncompAddr) {
+    const el = document.getElementById('logOutput');
+    const div = document.createElement('div');
+    div.style.margin = '0';
+    div.style.padding = '3px 0';
+    div.style.borderBottom = '1px solid #111827';
+    div.innerHTML =
+        '<span style="color:#60a5fa;font-weight:700">MNEMONIC</span>           : ' + escapeHtml(mnemonic) + '<br>' +
+        '<span style="color:#60a5fa;font-weight:700">PRIVATE KEY (HEX)</span>  : <span style="color:#ffffff">' + privkey + '</span><br>' +
+        '<span style="color:#60a5fa;font-weight:700">COMPRESSED ADDR</span>    : <span style="color:#22c55e">' + compAddr + '</span><br>' +
+        '<span style="color:#60a5fa;font-weight:700">UNCOMPRESSED ADDR</span>  : <span style="color:#eab308">' + uncompAddr + '</span>';
+    el.appendChild(div);
+    el.scrollTop = el.scrollHeight;
+    while (el.children.length > _logMaxEntries) el.removeChild(el.firstChild);
+}
+
+function logBalance(balResult, coinSymbol) {
+    const fmt = (v) => v.toFixed(8);
+    let txt;
+    if (balResult.received !== undefined && balResult.sent !== undefined) {
+        txt = '<span style="color:#f97316;font-weight:700">Received: ' + fmt(balResult.received) + ' ' + coinSymbol +
+              ' | Sent: ' + fmt(balResult.sent) + ' ' + coinSymbol +
+              ' | Balance: ' + fmt(balResult.balance) + ' ' + coinSymbol + '</span>';
+    } else {
+        txt = '<span style="color:#f97316;font-weight:700">Balance: ' + fmt(balResult.balance) + ' ' + coinSymbol + '</span>';
+    }
+    log(txt);
+}
+
+function logBalanceError() {
+    log('<span class="log-dim">Balance: API ERROR (retrying next endpoint...)</span>');
+}
+
+function escapeHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function clearLog(){document.getElementById('logOutput').innerHTML=''}
+
+function updateStats(){
+    document.getElementById('statCheck').textContent = state.checkCount.toLocaleString();
+    document.getElementById('statFound').textContent = state.foundCount.toLocaleString();
+    document.getElementById('statAPI').textContent = apiCallCount.toLocaleString();
+}
+
+function showError(msg){log('<span class="log-red">ERROR: '+msg+'</span>','log-red')}
+
+// ================================================================
+//  COIN SELECTION
+// ================================================================
+function selectCoin(coin){
+    state.selectedCoin = coin;
+    // Reset RPC index for new coin
+    rpcIndex[coin] = rpcIndex[coin] || 0;
+    document.querySelectorAll('.coin-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.coin === coin);
+    });
+    const name = COIN_NAMES[coin] || coin.toUpperCase();
+    if (state.scanning) {
+        log('<span class="log-cyan">Switching to ' + name + ' (' + (COIN_SYMBOL[coin]||'') + ') ...</span>');
+    } else {
+        log('Coin Selected : <span class="log-blue">' + name + ' (' + (COIN_SYMBOL[coin]||'') + ')</span>');
+    }
+}
+
+// ================================================================
+//  FOUND HANDLER - Updates Dashboard + Console
+// ================================================================
+function handleFound(mnemonic, w, balResult, coin) {
+    state.foundCount++;
+    const sym = COIN_SYMBOL[coin] || coin.toUpperCase();
+    const coinName = COIN_NAMES[coin] || coin.toUpperCase();
+    const fmt = (v) => v.toFixed(8);
+    const foundText =
+        'MNEMONIC           : ' + mnemonic + '\n' +
+        'PRIVATE KEY (HEX)  : ' + w.privkey_hex + '\n' +
+        'COMPRESSED ADDR    : ' + w.comp_addr + '\n' +
+        'UNCOMPRESSED ADDR  : ' + w.uncomp_addr + '\n' +
+        'Received: ' + fmt(balResult.received || 0) + ' ' + sym + '\n' +
+        'Sent: ' + fmt(balResult.sent || 0) + ' ' + sym + '\n' +
+        'Balance: ' + fmt(balResult.balance) + ' ' + sym + '\n' +
+        '='.repeat(55);
+    state.foundData.push(foundText);
+
+    // --- Update Dashboard Card ---
+    document.getElementById('dashEmpty').style.display = 'none';
+    const idx = state.foundCount;
+    let balLine = 'Balance: ' + fmt(balResult.balance) + ' ' + sym;
+    if (balResult.received !== undefined && (balResult.received || 0) > 0) {
+        balLine = 'Received: ' + fmt(balResult.received) + ' | Sent: ' + fmt(balResult.sent || 0) + ' | Balance: ' + fmt(balResult.balance) + ' ' + sym;
+    }
+    const card = document.createElement('div');
+    card.className = 'found-card';
+    card.innerHTML =
+        '<div class="fc-row"><span class="fc-idx">#' + idx + '</span><span class="fc-coin">' + coinName.toUpperCase() + '</span><span class="fc-bal">' + balLine + '</span></div>' +
+        '<div class="fc-row"><span class="fc-label">MNEMONIC</span><span class="fc-val mn">' + escapeHtml(mnemonic) + '</span></div>' +
+        '<div class="fc-row"><span class="fc-label">PRIV KEY</span><span class="fc-val pk">' + w.privkey_hex + '</span></div>' +
+        '<div class="fc-row"><span class="fc-label">ADDRESS</span><span class="fc-val addr">' + w.comp_addr + '</span></div>';
+    const dashList = document.getElementById('dashboardList');
+    dashList.prepend(card); // newest first
+    dashList.scrollTop = 0;
+    document.getElementById('dashCount').textContent = idx;
+
+    // --- Console alert ---
+    log('<span class="log-yellow">========================================</span>');
+    log('<span class="log-yellow" style="font-size:12px;font-weight:900">*** FOUND #'+idx+'! Balance: ' + fmt(balResult.balance) + ' ' + sym + ' ***</span>');
+    log('<span class="log-yellow">========================================</span>');
+
+    updateStats();
+}
+
+// ================================================================
+//  DOWNLOAD FOUND DATA
+// ================================================================
+function downloadFound() {
+    if (state.foundData.length === 0) { showError('No matches found yet.'); return; }
+    const coin = (COIN_SYMBOL[state.selectedCoin] || state.selectedCoin.toUpperCase());
+    let content = '=== LUCK WORLD - FOUND MATCHES (' + coin + ') ===\n';
+    content += '=== Date: ' + new Date().toISOString() + '\n';
+    content += '=== Total Found: ' + state.foundData.length + '\n';
+    content += '=== Programmer & Owner : CRYPTOGRAPHYTUBE.IN\n';
+    content += '='.repeat(55) + '\n\n';
+    content += state.foundData.join('\n\n') + '\n';
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'LuckWorld_Found_' + coin + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ================================================================
+//  MAIN SCANNING ENGINE (NO STOP - RUNS FOREVER)
+// ================================================================
+async function startScan() {
+    if (state.scanning) return;
+    state.scanning = true;
+    state.startTime = performance.now();
+    state.lastSpeedUpdate = performance.now();
+    state.lastCheckCount = 0;
+    state.prevCoin = state.selectedCoin;
+
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('apiDot').classList.remove('error');
+
+    logScanStart(state.selectedCoin);
+
+    // Main loop - runs FOREVER (no stop)
+    while (true) {
+        try {
+            await scanOne();
+        } catch (err) {
+            document.getElementById('apiDot').classList.add('error');
+            log('<span class="log-red">Loop error: ' + err.message + ' - continuing...</span>');
+            await sleep(1000);
+            document.getElementById('apiDot').classList.remove('error');
+        }
+    }
+}
+
+function logScanStart(coin) {
+    const coinName = COIN_NAMES[coin] || coin.toUpperCase();
+    const coinSym = COIN_SYMBOL[coin] || coin.toUpperCase();
+    const totalEndpoints = RPC_ENDPOINTS[coin] ? RPC_ENDPOINTS[coin].length : 0;
+    log('<span class="log-green">========================================</span>');
+    log('<span class="log-green" style="font-weight:900;font-size:12px">SCAN STARTED - ' + coinName + ' (' + coinSym + ')</span>');
+    log('<span class="log-green">Loaded ' + totalEndpoints + ' RPC/API endpoints</span>');
+    log('<span class="log-green">Checking balance for every generated wallet...</span>');
+    log('<span class="log-green">Switch coins anytime - takes effect immediately!</span>');
+    log('<span class="log-green">========================================</span>');
+    log('');
+}
+
+async function scanOne() {
+    // Read coin LIVE from state every iteration - instant switch!
+    const coin = state.selectedCoin;
+    const coinSym = COIN_SYMBOL[coin] || coin.toUpperCase();
+
+    // Detect coin change and log it
+    if (coin !== state.prevCoin) {
+        const oldName = COIN_NAMES[state.prevCoin] || state.prevCoin.toUpperCase();
+        const newName = COIN_NAMES[coin] || coin.toUpperCase();
+        log('<span class="log-cyan" style="font-weight:900">*** SWITCHED: ' + oldName + ' -> ' + newName + ' ***</span>');
+        state.prevCoin = coin;
+    }
+
+    const mnemonic = genMnemonic(12);
+    const w = deriveWallet(mnemonic, coin);
+    state.checkCount++;
+
+    // Log wallet data to console
+    logWallet(mnemonic, w.privkey_hex, w.comp_addr, w.uncomp_addr);
+
+    // Check balance via API
+    let balResult;
+    try {
+        balResult = await checkBalance(coin, w.comp_addr);
+    } catch (err) {
+        balResult = { received: 0, sent: 0, balance: 0, error: true };
+    }
+
+    // Display balance
+    if (balResult.error) {
+        logBalanceError();
+        document.getElementById('apiDot').classList.add('error');
+        setTimeout(function(){ document.getElementById('apiDot').classList.remove('error'); }, 2000);
+    } else {
+        logBalance(balResult, coinSym);
+
+        // Check for FOUND (any of received/sent/balance > 0)
+        if ((balResult.received || 0) > 0 || (balResult.sent || 0) > 0 || (balResult.balance || 0) > 0) {
+            handleFound(mnemonic, w, balResult, state.selectedCoin);
+        }
+    }
+
+    // Update live preview
+    updateLivePreview(mnemonic, w, balResult, coinSym);
+
+    // Update stats and speed
+    updateStats();
+    const now = performance.now();
+    if (now - state.lastSpeedUpdate >= 1000) {
+        const elapsed = (now - state.lastSpeedUpdate) / 1000;
+        const diff = state.checkCount - state.lastCheckCount;
+        const speed = Math.round(diff / elapsed);
+        document.getElementById('speedDisplay').textContent = speed.toLocaleString();
+        state.lastSpeedUpdate = now;
+        state.lastCheckCount = state.checkCount;
+    }
+}
+
+function updateLivePreview(mnemonic, w, balResult, coinSym) {
+    const fmt = (v) => v.toFixed(8);
+    let balStr;
+    if (balResult.error) {
+        balStr = 'Balance: API ERROR';
+    } else if (balResult.received !== undefined) {
+        balStr = 'Received: ' + fmt(balResult.received) + ' ' + coinSym +
+                 '  |  Sent: ' + fmt(balResult.sent) + ' ' + coinSym +
+                 '  |  Balance: ' + fmt(balResult.balance) + ' ' + coinSym;
+    } else {
+        balStr = 'Balance: ' + fmt(balResult.balance) + ' ' + coinSym;
+    }
+    document.getElementById('liveText').textContent =
+        'MNEMONIC           : ' + mnemonic + '\n' +
+        'PRIVATE KEY (HEX)  : ' + w.privkey_hex + '\n' +
+        'COMPRESSED ADDR    : ' + w.comp_addr + '\n' +
+        'UNCOMPRESSED ADDR  : ' + w.uncomp_addr + '\n' +
+        balStr;
+}
+
+// ================================================================
+//  KEYBOARD SHORTCUTS
+// ================================================================
+document.addEventListener('keydown', function(e) {
+    // Coin switching works even while scanning - instant switch!
+    if (e.ctrlKey && e.key.toLowerCase()==='b' && !e.shiftKey) { e.preventDefault(); selectCoin('btc'); }
+    else if (e.ctrlKey && e.key.toLowerCase()==='e') { e.preventDefault(); selectCoin('eth'); }
+    else if (e.ctrlKey && e.key.toLowerCase()==='t') { e.preventDefault(); selectCoin('trx'); }
+    else if (e.ctrlKey && e.key.toLowerCase()==='l') { e.preventDefault(); selectCoin('ltc'); }
+    else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='b') { e.preventDefault(); selectCoin('bnb'); }
+    else if (e.ctrlKey && e.key.toLowerCase()==='d') { e.preventDefault(); selectCoin('dash'); }
+});
+
+// ================================================================
+//  INIT
+// ================================================================
+(function checkLibs() {
+    var missing = [];
+    if (typeof CryptoJS === 'undefined') missing.push('CryptoJS');
+    if (typeof elliptic === 'undefined') missing.push('elliptic');
+    if (typeof keccak_256 === 'undefined') missing.push('js-sha3/keccak256');
+    if (missing.length > 0) {
+        log('<span class="log-red">ERROR: Failed to load: ' + missing.join(', ') + '</span>');
+        log('<span class="log-red">Check internet connection and refresh.</span>');
+        return;
+    }
+    log('<span class="log-blue" style="font-weight:900;font-size:12px">LUCK WORLD - Blockchain Balance Scanner</span>');
+    log('<span class="log-green">All crypto libraries loaded successfully.</span>');
+
+    var totalRPC = 0;
+    for (var c in RPC_ENDPOINTS) totalRPC += RPC_ENDPOINTS[c].length;
+    log('<span class="log-cyan">Loaded ' + totalRPC + ' free RPC/API endpoints across 6 coins.</span>');
+    log('<span class="log-cyan">BTC: ' + RPC_ENDPOINTS.btc.length + ' | ETH: ' + RPC_ENDPOINTS.eth.length +
+        ' | BNB: ' + RPC_ENDPOINTS.bnb.length + ' | TRX: ' + RPC_ENDPOINTS.trx.length +
+        ' | LTC: ' + RPC_ENDPOINTS.ltc.length + ' | DASH: ' + RPC_ENDPOINTS.dash.length + '</span>');
+    log('');
+    log('Coin Selected : <span class="log-blue">Bitcoin (BTC)</span>');
+    log('<span class="log-green">Press START to begin scanning. Runs forever - no stop.</span>');
+    log('<span class="log-dim">Keyboard: Ctrl+B (BTC) | Ctrl+E (ETH) | Ctrl+T (TRX) | Ctrl+L (LTC) | Ctrl+Shift+B (BNB) | Ctrl+D (DASH)</span>');
+})();
+
+</script>
+</body>
+</html>
